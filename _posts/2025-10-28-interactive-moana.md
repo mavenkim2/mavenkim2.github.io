@@ -7,4 +7,4 @@ youtubeId: g6yUsX6zboI
 ---
 
 still in progress
-{% include youtubePlayer.html id=page.youtubeId %}
+{% include moana_video.html id=page.youtubeId %}
