@@ -25,7 +25,7 @@ that are slower to ray trace at runtime, conserving memory is necessary due to o
 
 All unique geometry is stored according to the [AMD Dense Geometry Format](https://gpuopen.com/download/DGF.pdf) (DGF), except clusters are not limited to 128 bytes. This format stores all vertex positions and attributes as variable bit width
 offsets from an anchor value, saving memory. Also, instead of storing three indices per triangle, the format uses generalized triangle strips, which use a 2-bit control field per triangle to indicate how each
-triangle *k* is generated. 
+triangle `k` is generated. 
 
 ```
 RESTART(0) : Consume 3 indices and restart strip
@@ -123,7 +123,7 @@ What happens when we add backtracking? Recall that backtracking reuses the remai
 Let's revisit the ctrl = `EDGE1` case.
 
 ```  
-//...
+// ...
 else if ctrl = BACKTRACK then
     if prevCtrl = EDGE1 then
         return prev[0]
@@ -135,8 +135,8 @@ If prevCtrl is `EDGE1`, we need to find the value of `prev[0]`. Since `indexAddr
 this value can be determined. If prevCtrl is EDGE2, then we need to find the value of `bt`, which unfortunately is also `prev[1]`. This means 
 to calculate the value of `prev[1]`, we need to find the most recent triangle with control types
 `RESTART`, `EDGE2`, or `EDGE1` with a succeeding `BACKTRACK`.
-
-For the `EDGE2` case, we need to find the most recent triangle that is either 
+Following a similar process when ctrl `EDGE2`, 
+we now need to find the most recent triangle that is either 
 a `RESTART`, `EDGE1`, or `EDGE2` immediately followed by `BACKTRACK`. The pseudocode for these two cases are listed below.
 
 ```
@@ -171,7 +171,7 @@ for k = index - 1 -> 0 do
 ```
 <p style="text-align: center;">Listing 8. Decoding pseudocode for `EDGE2`</p>
 
-The above loops can be represented as a bit scan operation. We use `firstbithigh` to find the most significant bit of the `EDGE1` and `RESTART` bitmasks that is less than 
+The above loops can be represented as bit scan operations. We use `firstbithigh` to find the most significant bit of the `EDGE1` and `RESTART` bitmasks that is less than 
 the current triangle's bit. If `EDGE2` is needed, we bitwise invert the `EDGE1` mask, and clear any bits where `RESTART` or `BACKTRACK` are set.
 
 Below is HLSL code that decodes the values of indexAddress for a given triangleIndex.
@@ -249,7 +249,7 @@ Figure 3. Nsight capture for shotCam, using O(N) decoding
 Using the shotCam camera, the total frame time is 51.56 ms using the O(1) decoding method, and 59.70 ms using the O(N) decoding method.
 The O(1) decoding algorithm saves about 8 ms per frame, which is a ~1.16x speedup.
 
-In the next few posts I'll discuss how I used the RTX Mega Geometry extensions to reduce BVH memory costs, as well as texture streaming.
+In the next few posts I'll discuss how I used the RTX Mega Geometry extensions to reduce BVH memory costs, as well as how textures are streamed in my renderer.
 
 ## Links
 Barczak et. al. 2024, "DGF: A Dense, Hardware-Friendly Geometry Format for
@@ -257,4 +257,4 @@ Lossily Compressing Meshlets with Arbitrary Topologies" [https://gpuopen.com/dow
 
 Disney 2018, "Moana Island data set" [https://www.disneyanimation.com/data-sets/](https://www.disneyanimation.com/data-sets/)
 
-
+Meyer et. al. 2025 "Parallel Dense-Geometry-Format Topology Decompression" [https://doi.org/10.2312/egs.20251050](https://doi.org/10.2312/egs.20251050)
