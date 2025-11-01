@@ -237,7 +237,7 @@ runtime logic, and the extra memory cost is negligible.
 AMD recently published an alternative O(1) decoding algorithm, which can be found [here](https://doi.org/10.2312/egs.20251050).
 
 ## Results
-![shotCam_O1](/assets/images/shotCam_O1.png)
+![shotCam_O1](/assets/images/shotCam_O1_.png)
 Figure 1. Nsight capture for shotCam, using O(1) decoding
 
 ![shotCam_metrics](/assets/images/shotCam_metrics.png)
