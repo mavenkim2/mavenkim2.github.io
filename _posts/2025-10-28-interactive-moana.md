@@ -237,13 +237,13 @@ runtime logic, and the extra memory cost is negligible.
 AMD recently published an alternative O(1) decoding algorithm, which can be found [here](https://doi.org/10.2312/egs.20251050).
 
 ## Results
-![shotCam_O1](../assets/images/shotCam_O1.png)
+![shotCam_O1](/assets/images/shotCam_O1.png)
 Figure 1. Nsight capture for shotCam, using O(1) decoding
 
-![shotCam_metrics](../assets/images/shotCam_metrics.png)
+![shotCam_metrics](/assets/images/shotCam_metrics.png)
 Figure 2. Nsight trace info
 
-![shotCam_metrics](../assets/images/shotCam_ON.png)
+![shotCam_metrics](/assets/images/shotCam_ON.png)
 Figure 3. Nsight capture for shotCam, using O(N) decoding
 
 Using the shotCam camera, the total frame time is 51.56 ms using the O(1) decoding method, and 59.70 ms using the O(N) decoding method.
