@@ -23,7 +23,7 @@ are minimized. In this case, a node represents a triangle, and an edge represent
 because it minimizes the number of duplicated vertices across all clusters, which reduces the total geometry memory footprint as much as possible. While this may produce clusters 
 that are slower to ray trace at runtime, conserving memory is necessary due to our limited budget.
 
-All unique geometry is stored according to the AMD Dense Geometry Format (DGF), except clusters are not limited to 128 bytes. This format stores all vertex positions and attributes as variable bit width
+All unique geometry is stored according to the [AMD Dense Geometry Format](https://gpuopen.com/download/DGF.pdf) (DGF), except clusters are not limited to 128 bytes. This format stores all vertex positions and attributes as variable bit width
 offsets from an anchor value, saving memory. Also, instead of storing three indices per triangle, the format uses generalized triangle strips, which use a 2-bit control field per triangle to indicate how each
 triangle *k* is generated. 
 
@@ -250,3 +250,11 @@ Using the shotCam camera, the total frame time is 51.56 ms using the O(1) decodi
 The O(1) decoding algorithm saves about 8 ms per frame, which is a ~1.16x speedup.
 
 In the next few posts I'll discuss how I used the RTX Mega Geometry extensions to reduce BVH memory costs, as well as texture streaming.
+
+## Links
+Barczak et. al. 2024, "DGF: A Dense, Hardware-Friendly Geometry Format for
+Lossily Compressing Meshlets with Arbitrary Topologies" [https://gpuopen.com/download/DGF.pdf](https://gpuopen.com/download/DGF.pdf)
+
+Disney 2018, "Moana Island data set" [https://www.disneyanimation.com/data-sets/](https://www.disneyanimation.com/data-sets/)
+
+
