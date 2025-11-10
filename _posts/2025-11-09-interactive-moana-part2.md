@@ -154,7 +154,11 @@ reuse these stale indices to prevent this error from happening.
 
 ## Links
 Kandar et. al. 2024, "Alan Wake 2: A Deep Dive into Path Tracing Technology" [https://www.nvidia.com/en-us/on-demand/session/gdc24-gdc1003/](https://www.nvidia.com/en-us/on-demand/session/gdc24-gdc1003/)
+
 Marrs. et. al. 2025, "Scale Up Ray Tracing in Games with RTX Mega Geometry" [https://www.nvidia.com/en-us/on-demand/session/gdc25-gdc1006/](https://www.nvidia.com/en-us/on-demand/session/gdc25-gdc1006/)
+
 NVIDIA 2025, "vk_partitioned_tlas" [https://github.com/nvpro-samples/vk_partitioned_tlas](https://github.com/nvpro-samples/vk_partitioned_tlas)
+
 Vulkan 2025, "Cluster Level Acceleraton Structures" [https://docs.vulkan.org/spec/latest/chapters/accelstructures.html#cluster-geometry](https://docs.vulkan.org/spec/latest/chapters/accelstructures.html#cluster-geometry)
+
 Wald 2007, [https://www.sci.utah.edu/~wald/Publications/2007/ParallelBVHBuild/fastbuild.pdf](https://www.sci.utah.edu/~wald/Publications/2007/ParallelBVHBuild/fastbuild.pdf)
