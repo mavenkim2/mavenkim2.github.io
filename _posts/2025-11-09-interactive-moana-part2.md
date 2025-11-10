@@ -53,7 +53,7 @@ individual CLAS, as well as the cluster BLAS. The traditional triangle BLAS size
 | isMountainA/isMountainA.obj | 43,890 | 67,006 | 924 | 1,776 |
 | isDunesA/archives/xgHibiscusFlower_archiveHibiscusFlower0009_mod.obj | 2,428 | 3,888 | 44 | 98 |
 
-Using CLAS saves roughly 50% of memory per unique mesh. For the Moana island scene, the total amount of AS memory saved is 1549 MB.
+Using CLAS saves roughly 50% per unique mesh, with the savings being larger for some meshes. For the Moana island scene, the total amount of AS memory saved is 1549 MB.
 
 One caveat regarding these build sizes is that they are computed on the GPU, not the CPU. The Vulkan API provides a CPU function that returns an estimate 
 of the memory required by a CLAS or cluster BLAS, named `vkGetClusterAccelerationStructureBuildSizesNV` ([spec](https://docs.vulkan.org/spec/latest/chapters/accelstructures.html#vkGetClusterAccelerationStructureBuildSizesNV)).
