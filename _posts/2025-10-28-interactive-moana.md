@@ -169,12 +169,12 @@ for k = index - 1 -> 0 do
         if prevCtrl = EDGE2, return 2r + k - 2
         else if prevCtrl = EDGE1, continue
 ```
-<p style="text-align: center;">Listing 8. Decoding pseudocode for `EDGE2`</p>
+<p style="text-align: center;">Listing 8. Decoding pseudocode for EDGE2</p>
 
 The above loops can be represented as bit scan operations. We use `firstbithigh` to find the most significant bit of the `EDGE1` and `RESTART` bitmasks that is less than 
 the current triangle's bit. If `EDGE2` is needed, we bitwise invert the `EDGE1` mask, and clear any bits where `RESTART` or `BACKTRACK` are set.
 
-Below is HLSL code that decodes the values of indexAddress for a given triangleIndex.
+Below is HLSL code that decodes the values of indexAddress for a given `triangleIndex`.
 
 ```
 int3 indexAddress = int3(0, 1, 2);
