@@ -1,6 +1,7 @@
 ---
 layout: page
 title: Projects
+permalink: /
 ---
 
 <div class="projects-container">
