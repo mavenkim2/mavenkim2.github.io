@@ -22,7 +22,7 @@
 /* Container for all project cards */
 .projects-container {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Responsive grid */
+    grid-template-columns: 1fr;//repeat(auto-fit, minmax(300px, 1fr)); /* Responsive grid */
     gap: 30px; /* Space between cards */
     max-width: 1200px;
     margin: 0 auto;
@@ -45,9 +45,14 @@
 
 /* Hover effect */
 .project-card:hover {
+    
     text-decoration: none !important; /* Forces no underline */
     transform: translateY(-5px); /* Slight lift */
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+}
+
+.project-card a:hover {
+    text-decoration: none !important; /* Forces no underline */
 }
 
 /* The Image */
