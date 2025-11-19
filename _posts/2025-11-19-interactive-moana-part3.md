@@ -60,11 +60,19 @@ I ended up removing this system and simply storing all of the BLASes in GPU memo
 One issue with the LOD system was due to a commonly known problem with quadric error mesh simplification (QEM), which is used when generating cluster LODs. QEM struggles when geometry contains a large number of unconnected islands, 
 which is very common in foliage. Below are some images demonstrating the problem.
 
-![madrona0](/assets/images/tree_madrona_0.png)
-Figure 1. Render of xgFoliageB_treeMadronaBaked_canopyOnly_lo.obj at lod level 0.
+<figure>
+    <img src="/assets/images/tree_madrona_0.png" alt="Tree Render">
+    <figcaption style="margin-top: 8px;">
+    Figure 1. Render of xgFoliageB_treeMadronaBaked_canopyOnly_lo.obj at lod level 0.
+    </figcaption>
+</figure>
 
-![madrona3](/assets/images/tree_madrona_3.png)
-Figure 2. Render of xgFoliageB_treeMadronaBaked_canopyOnly_lo.obj at lod level 2. Notice how visually, there appears to be less leaves.
+<figure>
+    <img src="/assets/images/tree_madrona_3.png" alt="Tree Render">
+    <figcaption style="margin-top: 8px;">
+    Figure 2. Render of xgFoliageB_treeMadronaBaked_canopyOnly_lo.obj at lod level 2. Notice how visually, there appears to be less leaves.
+    </figcaption>
+</figure>
 
 Recent work from Epic Games addresses this issue with Nanite Voxels, first introduced in the Witcher 4 [demo](https://www.youtube.com/watch?v=Nthv4xF_zHU). Instead of simplifying clusters with QEM, 
 clusters are first voxelized, with a voxel size matching the error returned by the quadric error process. If the number of voxels returned from the voxelization process is above some threshold, 
