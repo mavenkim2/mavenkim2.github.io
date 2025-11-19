@@ -152,6 +152,8 @@ One important thing to note is that even if instances are disabled, they still c
 stale indices from that same partition could still remain on the free list, causing the partition to exceed the `maxInstancePerPartitionCount` limit. Care must be taken to 
 reuse these stale indices to prevent this error from happening.
 
+[next post](https://mavenkim2.github.io/2025/11/19/interactive-moana-part3.html)
+
 ## Links
 Kandar et. al. 2024, "Alan Wake 2: A Deep Dive into Path Tracing Technology" [https://www.nvidia.com/en-us/on-demand/session/gdc24-gdc1003/](https://www.nvidia.com/en-us/on-demand/session/gdc24-gdc1003/)
 
