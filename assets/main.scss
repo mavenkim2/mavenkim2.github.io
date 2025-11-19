@@ -45,6 +45,7 @@
 
 /* Hover effect */
 .project-card:hover {
+    text-decoration: none !important; /* Forces no underline */
     transform: translateY(-5px); /* Slight lift */
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
 }
