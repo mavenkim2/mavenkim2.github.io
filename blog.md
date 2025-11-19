@@ -4,13 +4,7 @@ title: Blog
 permalink: /blog/
 ---
 
-<div class="home">
-  {%- if page.title -%}
-    <h1 class="page-heading">{{ page.title }}</h1>
-  {%- endif -%}
-
-  {{ content }}
-
+<div>
   {%- if site.posts.size > 0 -%}
     <h2 class="post-list-heading">{{ page.list_title | default: "Posts" }}</h2>
     <ul class="post-list">
@@ -31,5 +25,4 @@ permalink: /blog/
     </ul>
 
   {%- endif -%}
-
 </div>
