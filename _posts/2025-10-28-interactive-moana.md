@@ -247,9 +247,10 @@ Figure 2. Nsight trace info
 Figure 3. Nsight capture for shotCam, using O(N) decoding
 
 Using the shotCam camera, the total frame time is 51.56 ms using the O(1) decoding method, and 59.70 ms using the O(N) decoding method.
-The O(1) decoding algorithm saves about 8 ms per frame, which is a ~1.16x speedup.
+The O(1) decoding algorithm saves about 8 ms per frame, which is a ~1.16x speedup. All images are rendered using a basic 
+megakernel unidirectional path tracer with 3 bounces and next event estimation, at a resolution of 2560x1440.
 
-In the next few posts I'll discuss how I used the RTX Mega Geometry extensions to reduce BVH memory costs, as well as how textures are streamed in my renderer.
+In the [next](https://mavenkim2.github.io/2025/11/09/interactive-moana-part2.html) few posts I'll discuss how I used the RTX Mega Geometry extensions to reduce BVH memory costs, as well as how textures are streamed in my renderer.
 
 ## Links
 Barczak et. al. 2024, "DGF: A Dense, Hardware-Friendly Geometry Format for
