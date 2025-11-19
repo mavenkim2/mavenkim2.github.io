@@ -76,8 +76,10 @@ the normal of the intersected geometry is added to an [SGGX](https://dl.acm.org/
 
 This system was designed for rasterization, so I attempted to implement a version of it that would work with ray-tracing. Below is an image of a voxelized foliage element.
 
-![madrona voxel](/assets/images/tree_madrona_voxel.png)
-Figure 3. Voxelized render of xgFoliageB_treeMadronaBaked_canopyOnly_lo.obj
+<figure>
+    <img src="/assets/images/tree_madrona_voxel.png" alt="Tree Render">
+    <figcaption style="margin-top: 8px;">Figure 3. Voxelized render of xgFoliageB_treeMadronaBaked_canopyOnly_lo.obj</figcaption>
+</figure>
 
 In the end, I couldn't get the appearance of the voxels to quite match the original geometry. I originally tried to implement this system because I thought it would be necessary, but I 
 realized after I implemented it that the base unique geometry could fit in GPU memory with no streaming. Also, it was unclear how to handle the texture parameterization of the simplified clusters (both triangles and voxels). 
@@ -93,11 +95,11 @@ Research regarding solutions for this problem have been published, but have not 
 Thanks for reading this far! If you have any questions regarding anything, feel free to send an email.
 
 ## Links
-Pharr et. al 2024, "Filtering After Shading With Stochastic Texture Filtering" [https://dl.acm.org/doi/10.1145/3651293](https://dl.acm.org/doi/10.1145/3651293)
-
 Lee et. al 2025, "A Texture Streaming Pipeline for Real-Time GPU Tracing" [https://www.yiningkarlli.com/projects/gpuptex.html](https://www.yiningkarlli.com/projects/gpuptex.html)
 
 Loubet and Neyret 2017, "Hybrid mesh-volume LoDs for all-scale pre-filtering of complex 3D assets" [https://hal.science/hal-01468817](https://hal.science/hal-01468817)
+
+Pharr et. al 2024, "Filtering After Shading With Stochastic Texture Filtering" [https://dl.acm.org/doi/10.1145/3651293](https://dl.acm.org/doi/10.1145/3651293)
 
 Ptex [https://ptex.us/](https://ptex.us/)
 
