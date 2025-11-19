@@ -4,4 +4,4 @@ title: About
 permalink: /about/
 ---
 
-Maven's blog
+I'm Maven Kim, a 24 year old aspiring graphics programmer.
