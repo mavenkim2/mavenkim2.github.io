@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "snapshots": [
+    {
+      "id": "pbrt-pool-rgb-64spp",
+      "name": "PBRT pool · RGB · 64 spp",
+      "url": "snapshots/pbrt-pool-rgb-64spp.json.gz",
+      "description": "15,007 guiding cells · 64 rendered samples · trained through 64 spp"
+    }
+  ],
+  "default": "pbrt-pool-rgb-64spp"
+}

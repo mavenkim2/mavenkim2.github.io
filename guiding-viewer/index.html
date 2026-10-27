@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Yeoubi · Guiding field</title>
+  <link rel="stylesheet" href="viewer.css">
+</head>
+<body>
+  <header><div><span class="badge">Y</span><strong>Guiding field</strong><span class="muted"> / Yeoubi</span></div>
+    <div class="actions"><span id="filename">No snapshot loaded</span><button id="demo">Load demo</button><button id="openSnapshot" class="primary" type="button" aria-controls="file">Open snapshot</button><input id="file" type="file" accept=".json,.gz,application/json,application/gzip" aria-label="Snapshot JSON file" hidden></div>
+  </header>
+  <main>
+    <section id="viewport" aria-label="3D guiding cells">
+      <canvas id="scene" tabindex="0" aria-label="Guiding field. WASD moves; hold right mouse button to look."></canvas>
+      <div id="notice" role="status">Open or drop a guiding JSON snapshot, or load the demo.</div>
+      <div class="viewbar"><span id="visible">0 cells</span><button id="frame">Frame all · F</button><button id="focus">Frame selected</button></div>
+      <div class="legend"><span id="low">0</span><div class="ramp"></div><span id="high">1</span><span id="legendLabel">Mean radiance · log scale</span></div>
+      <div class="controls">W A S D <span>move</span> Q E <span>down / up</span> Shift <span>4× speed</span><br>Hold right mouse <span>look</span> Scroll <span>speed</span> Click <span>inspect</span></div>
+      <div id="cameraInfo"></div>
+    </section>
+    <aside>
+      <section><h2>Snapshot</h2><div id="hostedCatalog" hidden><label>Published snapshots<select id="hostedSnapshot"><option value="">Choose a snapshot…</option></select></label><p id="snapshotDescription" class="small muted"></p></div><div id="summary" class="muted">All processing stays in this browser.</div></section>
+      <section><h2>Display</h2>
+        <label>Color by<select id="metric"><option value="rgb" id="rgbOption" disabled>Mean radiance RGB</option><option value="meanRadiance" selected>Mean radiance (heatmap)</option><option value="samples">Sample count</option><option value="depth">Tree depth</option><option value="components">VMM components</option></select></label>
+        <label id="exposureControl" hidden>RGB exposure (EV)<input id="exposure" type="number" min="-16" max="16" value="0" step="0.5"></label>
+        <label>World up<select id="worldUp"><option value="y">Y up</option><option value="z">Z up</option></select></label>
+        <div class="checks"><label><input id="filled" type="checkbox" checked> Filled cells</label><label><input id="boxes" type="checkbox"> Cell outlines</label><label><input id="pivots" type="checkbox"> Pivot positions</label><label><input id="directions" type="checkbox" checked> Selected spherical heatmap</label></div>
+        <label>Heatmap size<input id="sphereSize" type="number" min="0.25" max="4" value="1" step="0.25"></label>
+        <label>Minimum heatmap radius <span class="muted">world units</span><input id="sphereMinRadius" type="number" min="0" value="1" step="any"></label>
+        <label>Maximum heatmap radius <span class="muted">world units</span><input id="sphereMaxRadius" type="number" min="0.000001" value="2" step="any"></label>
+        <label>Minimum mean radiance<input id="threshold" type="number" min="0" value="0" step="any"></label>
+        <label>Move speed <span class="muted">world units / s</span><input id="speed" type="number" min="0.01" max="1000" value="5" step="0.1"></label>
+        <p class="muted small">Boxes always use observed training-position bounds. Cells without observed positions are hidden. Gray cells have no radiance estimate.</p>
+      </section>
+      <section><h2>Inspect cell</h2><label>Cell ID<input id="cellId" type="number" min="0" step="1" placeholder="Click a cell or enter an ID"></label><div id="details" class="muted">Select a cell to inspect its bounds and statistics.</div>
+        <div id="distribution" hidden><h3>Directional density</h3><canvas id="density" width="256" height="128" aria-label="VMM directional density, equirectangular projection"></canvas><p class="small muted">Blue = low · cyan · green · yellow · red = high<br>GPU compute: 2048 × 1024 directions over the full sphere.<br>Log density relative to the full map’s peak.<br>Sphere is centered at the pivot and drawn over cells.<br>Flat map: longitude −π → π · latitude +π/2 → −π/2; Y up.</p><div id="components"></div></div>
+      </section>
+    </aside>
+  </main>
+  <script type="module" src="viewer.js"></script>
+</body>
+</html>
