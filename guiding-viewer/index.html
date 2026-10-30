@@ -3,25 +3,35 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Yeoubi · Guiding field</title>
+  <title>Guiding Field Visualization</title>
+  <meta name="description" content="Guiding Field Visualization">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
   <link rel="stylesheet" href="viewer.css">
 </head>
 <body>
-  <header><div><span class="badge">Y</span><strong>Guiding field</strong><span class="muted"> / Yeoubi</span></div>
-    <div class="actions"><span id="filename">No snapshot loaded</span><button id="demo">Load demo</button><button id="openSnapshot" class="primary" type="button" aria-controls="file">Open snapshot</button><input id="file" type="file" accept=".json,.gz,application/json,application/gzip" aria-label="Snapshot JSON file" hidden></div>
+  <header><div><strong>Guiding Field Visualization</strong></div>
+    <div class="actions"><span id="filename">No snapshot loaded</span><button id="openSnapshot" class="primary" type="button" aria-controls="file">Open snapshot</button><input id="file" type="file" accept=".json,.gz,application/json,application/gzip" aria-label="Snapshot JSON file" hidden></div>
   </header>
   <main>
     <section id="viewport" aria-label="3D guiding cells">
-      <canvas id="scene" tabindex="0" aria-label="Guiding field. WASD moves; hold right mouse button to look."></canvas>
-      <div id="notice" role="status">Open or drop a guiding JSON snapshot, or load the demo.</div>
-      <div class="viewbar"><span id="visible">0 cells</span><button id="frame">Frame all · F</button><button id="focus">Frame selected</button></div>
-      <div class="legend"><span id="low">0</span><div class="ramp"></div><span id="high">1</span><span id="legendLabel">Mean radiance · log scale</span></div>
-      <div class="controls">W A S D <span>move</span> Q E <span>down / up</span> Shift <span>4× speed</span><br>Hold right mouse <span>look</span> Scroll <span>speed</span> Click <span>inspect</span></div>
-      <div id="cameraInfo"></div>
+      <canvas id="scene" tabindex="0" aria-label="Guiding Field Visualization. WASD moves; hold right mouse button to look. H hides or restores controls."></canvas>
+      <div id="notice" role="status">Choose a published snapshot, or open or drop a guiding JSON file.</div>
+      <div class="viewbar"><span id="visible" class="hud-panel">0 cells</span><button id="frame">Frame all · F</button><button id="focus">Frame selected</button></div>
+      <div class="bottom-hud">
+        <div class="left-hud">
+          <div class="legend hud-panel"><span id="low">0</span><div class="ramp"></div><span id="high">1</span><span id="legendLabel">Mean radiance · log scale</span></div>
+          <div class="controls hud-panel">W A S D <span>move</span> Q E <span>down / up</span> Shift <span>4× speed</span><br>Hold right mouse <span>look</span> Scroll <span>speed</span> Click <span>inspect</span> H <span>hide UI</span></div>
+        </div>
+        <div id="cameraInfo" class="hud-panel"></div>
+      </div>
     </section>
     <aside>
       <section><h2>Snapshot</h2><div id="hostedCatalog" hidden><label>Published snapshots<select id="hostedSnapshot"><option value="">Choose a snapshot…</option></select></label><p id="snapshotDescription" class="small muted"></p></div><div id="summary" class="muted">All processing stays in this browser.</div></section>
       <section><h2>Display</h2>
+        <button id="toggleUI" type="button" aria-pressed="false" aria-keyshortcuts="h" title="Hide controls for screenshots. Press H or Escape to restore.">Hide UI · H</button>
+        <p class="muted small">Press H or Escape to restore the controls.</p>
         <label>Color by<select id="metric"><option value="rgb" id="rgbOption" disabled>Mean radiance RGB</option><option value="meanRadiance" selected>Mean radiance (heatmap)</option><option value="samples">Sample count</option><option value="depth">Tree depth</option><option value="components">VMM components</option></select></label>
         <label id="exposureControl" hidden>RGB exposure (EV)<input id="exposure" type="number" min="-16" max="16" value="0" step="0.5"></label>
         <label>World up<select id="worldUp"><option value="y">Y up</option><option value="z">Z up</option></select></label>
@@ -34,7 +44,7 @@
         <p class="muted small">Boxes always use observed training-position bounds. Cells without observed positions are hidden. Gray cells have no radiance estimate.</p>
       </section>
       <section><h2>Inspect cell</h2><label>Cell ID<input id="cellId" type="number" min="0" step="1" placeholder="Click a cell or enter an ID"></label><div id="details" class="muted">Select a cell to inspect its bounds and statistics.</div>
-        <div id="distribution" hidden><h3>Directional density</h3><canvas id="density" width="256" height="128" aria-label="VMM directional density, equirectangular projection"></canvas><p class="small muted">Blue = low · cyan · green · yellow · red = high<br>GPU compute: 2048 × 1024 directions over the full sphere.<br>Log density relative to the full map’s peak.<br>Sphere is centered at the pivot and drawn over cells.<br>Flat map: longitude −π → π · latitude +π/2 → −π/2; Y up.</p><div id="components"></div></div>
+        <div id="distribution" hidden><h3>Directional density</h3><canvas id="density" width="256" height="128" aria-label="VMM directional density, equirectangular projection"></canvas><button id="exportDensity" type="button" disabled>Export PNG · 2048 × 1024</button><p id="densityExportStatus" class="small muted" role="status"></p><p class="small muted">Blue = low · cyan · green · yellow · red = high<br>GPU compute: 2048 × 1024 directions over the full sphere.<br>Log density relative to the full map’s peak.<br>Sphere is centered at the pivot and drawn over cells.<br>Flat map: azimuth −π → π · zenith 0 → π; Y up.</p><div id="components"></div></div>
       </section>
     </aside>
   </main>

@@ -1,12 +1,12 @@
-import {add,sub,mul,dot,cross,normalize,parseSnapshot,displayBounds,rayBox,heatColor,radianceColor,demoSnapshot} from './data.js';
+import {add,sub,mul,dot,cross,normalize,parseSnapshot,displayBounds,rayBox,heatColor,radianceColor} from './data.js';
 import {parseCatalog,decodeSnapshot} from './catalog.js';
 
 const $=id=>document.getElementById(id);
 const canvas=$('scene'),notice=$('notice');
 let scene=null,visible=[],selected=null,gpu=null,cellBuffer=null,cellGroup=null,lineBuffer=null,lineCount=0,depthTexture=null;
-let colorMin=0,colorMax=1,lastTime=0,looking=false,lastMouse=null;
+let colorMin=0,colorMax=1,lastTime=0,looking=false,lastMouse=null,uiHidden=false;
 const densityWidth=2048,densityHeight=1024;
-let densityDirty=true,densityReady=false;
+let densityDirty=true,densityReady=false,densityExporting=false;
 let snapshotLoadVersion=0,snapshotRequest=null,hostedSnapshots=[],activeHostedId='';
 const keys=new Set(),camera={position:[0,0,2],yaw:0,pitch:0,up:[0,1,0],base:[0,0,-1],speed:5};
 const fmt=x=>x===null||x===undefined?'—':Number(x).toLocaleString(undefined,Number.isSafeInteger(Number(x))?{maximumFractionDigits:0}:{maximumSignificantDigits:5});
@@ -170,7 +170,7 @@ async function initializeGPU() {
   if(!adapter) throw Error('No WebGPU adapter was found. Check browser hardware acceleration.');
   const device=await adapter.requestDevice();
   device.addEventListener('uncapturederror',event=>message(`WebGPU: ${event.error.message}`,true));
-  device.lost.then(info=>{gpu=null;message(`GPU device lost: ${info.message}. Reload this page.`,true);});
+  device.lost.then(info=>{gpu=null;updateDensityExport();message(`GPU device lost: ${info.message}. Reload this page.`,true);});
   const context=canvas.getContext('webgpu');
   if(!context) throw Error('Could not create the WebGPU canvas context.');
   const format=navigator.gpu.getPreferredCanvasFormat();
@@ -207,7 +207,7 @@ async function initializeGPU() {
     primitive:{topology:'triangle-list'}});
   const sphereUniform=device.createBuffer({size:544,usage:GPUBufferUsage.UNIFORM|GPUBufferUsage.COPY_DST});
   const densityField=device.createTexture({size:[densityWidth,densityHeight],format:'r32float',usage:GPUTextureUsage.STORAGE_BINDING|GPUTextureUsage.TEXTURE_BINDING});
-  const densityColors=device.createTexture({size:[densityWidth,densityHeight],format:'rgba8unorm',usage:GPUTextureUsage.STORAGE_BINDING|GPUTextureUsage.TEXTURE_BINDING});
+  const densityColors=device.createTexture({size:[densityWidth,densityHeight],format:'rgba8unorm',usage:GPUTextureUsage.STORAGE_BINDING|GPUTextureUsage.TEXTURE_BINDING|GPUTextureUsage.COPY_SRC});
   const densityMaximum=device.createBuffer({size:4,usage:GPUBufferUsage.STORAGE|GPUBufferUsage.COPY_DST});
   const densitySampler=device.createSampler({addressModeU:'repeat',addressModeV:'clamp-to-edge',magFilter:'linear',minFilter:'linear'});
   const sphereGroup=device.createBindGroup({layout:sphereLayout,entries:[
@@ -239,7 +239,8 @@ async function initializeGPU() {
   if(!densityContext) throw Error('Could not create the density map WebGPU context.');
   densityContext.configure({device,format,alphaMode:'opaque'});
   gpu={device,context,pipeline,solidPipeline,linePipeline,uniform,cameraGroup,cellsLayout,spherePipeline,sphereUniform,sphereGroup,
-    evaluatePipeline,colorPipeline,evaluateGroup,colorGroup,densityMaximum,densityContext,flatPipeline};
+    evaluatePipeline,colorPipeline,evaluateGroup,colorGroup,densityMaximum,densityColors,densityContext,flatPipeline};
+  updateDensityExport();
   if(scene) rebuild();
 }
 
@@ -259,6 +260,54 @@ function computeDensityField() {
   const color=encoder.beginComputePass();color.setPipeline(gpu.colorPipeline);color.setBindGroup(0,gpu.colorGroup);
   color.dispatchWorkgroups(densityWidth/16,densityHeight/16);color.end();
   gpu.device.queue.submit([encoder.finish()]);densityReady=true;
+}
+
+function updateDensityExport() {
+  $('exportDensity').disabled=densityExporting||!gpu||!selected?.vmm.initialized||!selected.vmm.components.length;
+}
+
+async function exportDensityPNG() {
+  if(densityExporting||!gpu||!selected?.vmm.initialized||!selected.vmm.components.length) return;
+  const cell=selected,device=gpu.device;
+  const snapshotName=$('filename').textContent.replace(/\.json(?:\.gz)?$/i,'')
+    .replace(/[^a-z0-9_-]+/gi,'-').replace(/^-+|-+$/g,'').slice(0,100)||'guiding';
+  const filename=`${snapshotName}-cell-${cell.id}-directional-density.png`;
+  let readback;
+  densityExporting=true;updateDensityExport();
+  $('densityExportStatus').textContent=`Exporting cell ${cell.id}…`;
+  try {
+    if(densityDirty) computeDensityField();
+    if(!densityReady) throw Error('The selected cell has no directional density map.');
+    // Copy the full compute texture, not the downscaled sidebar canvas. Queue
+    // the copy before awaiting so changing cells cannot change this export.
+    const rowBytes=densityWidth*4,bytesPerRow=Math.ceil(rowBytes/256)*256;
+    readback=device.createBuffer({size:bytesPerRow*densityHeight,usage:GPUBufferUsage.COPY_DST|GPUBufferUsage.MAP_READ});
+    const encoder=device.createCommandEncoder({label:'export directional density PNG'});
+    encoder.copyTextureToBuffer({texture:gpu.densityColors},{buffer:readback,bytesPerRow,rowsPerImage:densityHeight},[densityWidth,densityHeight]);
+    device.queue.submit([encoder.finish()]);
+    await readback.mapAsync(GPUMapMode.READ);
+    const mapped=new Uint8Array(readback.getMappedRange()),pixels=new Uint8ClampedArray(rowBytes*densityHeight);
+    for(let y=0;y<densityHeight;y++) pixels.set(mapped.subarray(y*bytesPerRow,y*bytesPerRow+rowBytes),y*rowBytes);
+    readback.unmap();
+    const image=document.createElement('canvas');image.width=densityWidth;image.height=densityHeight;
+    const context=image.getContext('2d');
+    if(!context) throw Error('Could not create the PNG image canvas.');
+    context.putImageData(new ImageData(pixels,densityWidth,densityHeight),0,0);
+    const blob=await new Promise((resolve,reject)=>image.toBlob(result=>result?resolve(result):reject(Error('Could not encode the PNG image.')),'image/png'));
+    const url=URL.createObjectURL(blob),link=document.createElement('a');
+    try {
+      link.href=url;link.download=filename;document.body.append(link);link.click();
+    } finally {
+      link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+    }
+    if(selected===cell) $('densityExportStatus').textContent=`Exported cell ${cell.id} · ${densityWidth} × ${densityHeight} PNG`;
+  } catch(error) {
+    const text=`Could not export distribution: ${error.message}`;
+    if(selected===cell) $('densityExportStatus').textContent=text;
+    else message(text,true);
+  } finally {
+    readback?.destroy();densityExporting=false;updateDensityExport();
+  }
 }
 
 function metric(cell) {
@@ -316,6 +365,7 @@ function rebuildLines() {
 function load(data,name) {
   const parsed=parseSnapshot(data); // Failed loads preserve the current snapshot.
   scene=parsed;selected=null;densityDirty=true;densityReady=false;
+  updateDensityExport();$('densityExportStatus').textContent='';
   $('sphereMinRadius').value=Number((scene.span*.01).toPrecision(5));
   $('sphereMaxRadius').value=Number((scene.span*.02).toPrecision(5));
   const hasRGB=scene.cells.some(cell=>cell.meanRadianceRGB!=null);
@@ -366,6 +416,7 @@ function frameSelected() {
 function selectCell(cell) {
   selected=cell;$('cellId').value=cell?.id??'';
   densityDirty=true;densityReady=false;
+  updateDensityExport();$('densityExportStatus').textContent='';
   if(!cell) {$('details').textContent='No cell at that point.';$('distribution').hidden=true;rebuildLines();return;}
   const dl=document.createElement('dl');
   for(const [key,value] of [['Node',cell.nodeIndex],['Depth',cell.depth],['Mean radiance',fmt(cell.meanRadiance)],['Mean RGB',vec(cell.meanRadianceRGB)],['Variance',fmt(cell.radianceVariance)],['Lookahead samples',fmt(cell.lookahead?.sampleCount)],['VMM samples',fmt(cell.vmm.sampleCount)],['VMM initialized',cell.vmm.initialized?'Yes':'No']]) {
@@ -473,8 +524,21 @@ document.addEventListener('drop',event=>{
   if(!event.dataTransfer?.files.length) return;
   event.preventDefault();openFile(event.dataTransfer.files[0]);
 });
-$('demo').onclick=()=>safe(()=>{beginSnapshotLoad();load(demoSnapshot(),'Demo · synthetic field');setActiveHosted('');});
+function setUIHidden(hidden) {
+  stopInput();uiHidden=hidden;
+  document.body.classList.toggle('ui-hidden',hidden);
+  $('toggleUI').setAttribute('aria-pressed',String(hidden));
+  (hidden?canvas:$('toggleUI')).focus({preventScroll:true});
+}
+$('toggleUI').onclick=()=>setUIHidden(!uiHidden);
+document.addEventListener('keydown',event=>{
+  if(event.defaultPrevented||event.repeat||event.isComposing||event.ctrlKey||event.metaKey||event.altKey) return;
+  const editing=event.target instanceof Element&&event.target.closest('input,select,textarea,[contenteditable]:not([contenteditable="false"])');
+  if(event.code==='KeyH'&&!editing) {event.preventDefault();setUIHidden(!uiHidden);}
+  else if(event.code==='Escape'&&uiHidden) {event.preventDefault();setUIHidden(false);}
+});
 $('frame').onclick=frameAll;$('focus').onclick=frameSelected;
+$('exportDensity').onclick=exportDensityPNG;
 for(const id of ['metric','threshold','exposure']) $(id).addEventListener('change',()=>safe(rebuild));
 for(const id of ['sphereMinRadius','sphereMaxRadius']) $(id).addEventListener('change',()=>{
   const minInput=$('sphereMinRadius'),maxInput=$('sphereMaxRadius');
@@ -543,7 +607,7 @@ function render(time) {
   if($('boxes').checked) pass.draw(24,visible.length);
   else if(selected) {const index=visible.findIndex(v=>v.cell===selected);if(index>=0) pass.draw(24,1,0,index);}
   if($('pivots').checked) pass.draw(6,visible.length,24);
-  if(lineBuffer&&lineCount) {pass.setPipeline(gpu.linePipeline);pass.setVertexBuffer(0,lineBuffer);pass.draw(lineCount);}
+  if(!uiHidden&&lineBuffer&&lineCount) {pass.setPipeline(gpu.linePipeline);pass.setVertexBuffer(0,lineBuffer);pass.draw(lineCount);}
   pass.end();
   if(selected&&densityReady&&$('directions').checked&&visible.some(v=>v.cell===selected)) {
     const center=local(selected.position);
@@ -565,7 +629,7 @@ function render(time) {
 }
 requestAnimationFrame(render);
 initializeGPU().then(async()=>{
-  message(scene?(scene.cells.length?'':'This snapshot has no active guiding cells.'):'Open a guiding JSON snapshot or load the demo.');
+  message(scene?(scene.cells.length?'':'This snapshot has no active guiding cells.'):'Choose a published snapshot, or open or drop a guiding JSON file.');
   const manifestURL=new URL('./snapshots.json',location.href),response=await fetch(manifestURL,{cache:'no-cache'});
   const catalog=response.ok?parseCatalog(await response.json(),manifestURL):{snapshots:[],default:null};
   hostedSnapshots=catalog.snapshots;

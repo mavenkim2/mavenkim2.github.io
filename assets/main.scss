@@ -94,3 +94,57 @@
     margin: 0;
     font-weight: 300;
 }
+
+/* Present the post's Markdown table as a pair of heatmaps. */
+.guiding-comparison {
+    width: 100%;
+    max-width: 576px;
+    margin: 24px auto 12px;
+    table-layout: fixed;
+    border: 0;
+}
+
+.guiding-comparison tr,
+.guiding-comparison th,
+.guiding-comparison td {
+    border: 0;
+    background: transparent;
+}
+
+.guiding-comparison th,
+.guiding-comparison td {
+    padding: 0 8px;
+    text-align: center;
+    vertical-align: top;
+}
+
+.guiding-comparison th {
+    padding-bottom: 8px;
+}
+
+.guiding-comparison img {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-width: 280px;
+    margin: 0 auto;
+}
+
+/* Let the location screenshots use the full post width. */
+.guiding-comparison--locations,
+.guiding-comparison--locations img {
+    max-width: none;
+}
+
+.guiding-comparison-caption {
+    text-align: center;
+    font-size: 0.875rem;
+    color: #666;
+}
+
+/* Keep wide display equations within the post on narrow screens. */
+.post-content mjx-container[display="true"] {
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 0.3em 0;
+}

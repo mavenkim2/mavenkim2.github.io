@@ -94,13 +94,3 @@ export function mixtureDensity(components,direction) {
     return sum+c.weight*(k<1e-5?1/(4*Math.PI):k/(2*Math.PI*(-Math.expm1(-2*k)))*Math.exp(k*(cosine-1)));
   },0);
 }
-
-export function demoSnapshot() {
-  const cells=[];
-  for(let x=0;x<4;x++) for(let y=0;y<3;y++) for(let z=0;z<4;z++) {
-    const id=cells.length,min=[x-2,y-1.5,z-2],max=add(min,[1,1,1]),position=mul(add(min,max),.5);
-    const meanRadiance=.05+24*Math.exp(-((x-2.5)**2+(y-2)**2+(z-1)**2)*.7);
-    cells.push({id,nodeIndex:id,depth:5,parentIndex:-1,bounds:{min,max},observedBounds:{min:add(min,[.05,.05,.05]),max:sub(max,[.05,.05,.05])},position,positionMean:position,positionVariance:[.08,.08,.08],positionSampleCount:1200,meanRadiance,meanRadianceSource:'lookahead',radianceVariance:meanRadiance*.4,lookahead:{sampleCount:1200},vmm:{initialized:true,sampleCount:1100,overallSampleCount:1100,sumWeights:meanRadiance*1100,components:[{direction:normalize(sub([1,2,-1],position)),weight:.8,kappa:12,distance:3},{direction:[0,1,0],weight:.2,kappa:.5,distance:null}]}});
-  }
-  return {schema:'yeoubi.guiding-cells',version:1,splitDecision:'lookahead',iteration:4,renderedSamples:16,nodeCount:95,distributionCount:48,sceneBounds:{min:[-2,-1.5,-2],max:[2,1.5,2]},cells};
-}
